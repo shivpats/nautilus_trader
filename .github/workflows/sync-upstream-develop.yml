@@ -1,0 +1,40 @@
+name: Sync upstream develop
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-upstream-develop
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out fork's develop branch
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+          fetch-depth: 0
+
+      - name: Fetch upstream develop
+        run: |
+          git remote add upstream https://github.com/nautechsystems/nautilus_trader.git
+          git fetch upstream develop
+
+      - name: Verify incoming upstream commits
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash scripts/verify-upstream-commits.bash
+
+      - name: Merge and push upstream develop
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git merge --no-edit upstream/develop
+          git push origin develop

@@ -42,9 +42,12 @@ Released on TBD (UTC).
 - Removed `nautilus_cryptography::signing` and Python `nautilus_trader.cryptography`; use crypto libraries directly
 - Removed `nautilus-cryptography` features `python` and `extension-module`; drop them from dependent manifests
 - Removed blockchain cache `toggle_performance_settings` and `toggle_perf_sync_settings`; sync uses server settings
+- Removed OKX spot margin position reports derived from `spotInUseAmt`, a Portfolio margin hedging amount
+- Removed `OKXHttpClient::request_spot_margin_position_reports` and `parse_spot_margin_position_from_balance`
 - Renamed `CacheConfig.tick_capacity` to `data_capacity`; serialized configs must use the new key
 - Renamed `ParquetDataCatalog` `quote_ticks` and `trade_ticks` queries to `quotes` and `trades`
 - Renamed Python `ParquetDataCatalog` `*_quote_ticks` and `*_trade_ticks` methods to `*_quotes` and `*_trades`
+- Renamed Binance `instrument_refresh_interval_secs` to `update_instruments_interval_mins`. Convert seconds to minutes
 - Changed `Position` layout. Use `PositionReplayEvents` for `replay_events` via `.into()` (#5551), thanks @Milchstrassse
 - Changed `Position` literals to require `allows_negative_price`. Use `None` if unknown (#5535)
 - Changed `PortfolioSnapshot` literals to require `is_registration`. Use `true` only for account registration
@@ -115,8 +118,6 @@ Released on TBD (UTC).
 - Changed Lighter `fresh_k` to return `anyhow::Result<Scalar>`; propagate signing nonce errors
 - Changed Lighter `PrivateKey::sign` to return `Result<Signature, InvalidSigningNonce>` for callers to handle
 - Changed Lighter `AuthTokenError` to include `InvalidSigningNonce`, which exhaustive matches must handle
-- Removed OKX spot margin position reports derived from `spotInUseAmt`, a Portfolio margin hedging amount
-- Removed `OKXHttpClient::request_spot_margin_position_reports` and `parse_spot_margin_position_from_balance`
 - Changed OKX algo order models to require chase and spawned-ID fields in struct literals
 - Changed `OKXAlgoOrderMsg::advance_ord_type` to `Option<OKXAdvanceOrderType>`
 - Changed `OKXExecutionClientConfig` literals; add `use_spot_position_reports` and `spot_positions_quote_currency`
@@ -153,6 +154,8 @@ Released on TBD (UTC).
 - Fixed trailing stops updating while markets are not open or from stale reopen prices
 - Fixed consecutive simulated maker fills leaking synthetic last prices into later matching
 - Fixed simulated L2 liquidity consumption for delayed trades and re-added levels (#5739), thanks @aaurix
+- Fixed older instrument responses overwriting newer cached definitions
+- Fixed stale instrument definitions in order and fill reports (#5722), thanks for reporting @vitakot
 - Fixed live startup connecting execution clients after a stop request during data connection
 - Fixed `LiveNode::start` skipping reconciliation for instruments sent during execution connect
 - Fixed `LiveNode::start` timing out when execution clients wait for account registration
@@ -235,6 +238,7 @@ Released on TBD (UTC).
 - Fixed Lighter raw WebSocket frames losing `subscribed/` types and unmodeled fields
 - Fixed Lighter recovery of unacknowledged order creates on reconnect (#5696), thanks @aaurix
 - Fixed Lighter IOC recovery after a lost acknowledgement (#5701), thanks for reporting @AlphaTraderK
+- Fixed Lighter recovery of unfilled bracket child cancellations when trade history is unavailable (#5683), thanks for reporting @YTsnipers
 - Fixed OKX balances not refreshing after a WebSocket reconnect
 - Fixed OKX denying `TRAILING_STOP_LIMIT` orders only after `OrderSubmitted`
 - Fixed OKX execution clients not subscribing to venue position updates
